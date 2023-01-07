@@ -47,7 +47,6 @@ const getModule = async (url) => {
         if (!fs.existsSync("downloads")) {
           fs.mkdirSync("downloads");
         }
-        //save link to file /downloads/${moduleName}/link.txt
 
         //create module folder if not exist
         if (!fs.existsSync(`./downloads/${moduleName}`)) {
@@ -64,6 +63,7 @@ const getModule = async (url) => {
           }
         );
         const domain = url.match(/(https?:\/\/[^/]+)/)[1];
+        let pendingDownload = modul.length;
         modul.forEach((m, index) => {
           const creatorName = m.creator.replace(/^\s+|\s+$/g, "");
 
@@ -89,9 +89,19 @@ const getModule = async (url) => {
                   )
                 );
                 console.log(chalk.green("Downloaded"), m.fileName);
+                pendingDownload--;
+                if (pendingDownload === 0) {
+                  console.log(chalk.green("Download completed"));
+                  process.exit(0);
+                }
               })
               .catch((err) => {
                 console.log(err.message);
+                pendingDownload--;
+                if (pendingDownload === 0) {
+                  console.log(chalk.green("Download completed"));
+                  process.exit(0);
+                }
               });
           }, 500 * index);
         });
