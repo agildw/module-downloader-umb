@@ -48,6 +48,11 @@ const getModule = async (url) => {
           fs.mkdirSync("downloads");
         }
         //save link to file /downloads/${moduleName}/link.txt
+
+        //create module folder if not exist
+        if (!fs.existsSync(`./downloads/${moduleName}`)) {
+          fs.mkdirSync(`./downloads/${moduleName}`);
+        }
         fs.writeFileSync(
           `./downloads/${moduleName}/link.txt`,
           url,
