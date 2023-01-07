@@ -5,10 +5,9 @@ const readlineSync = require("readline-sync");
 const chalk = require("chalk");
 
 const url = readlineSync.question("Enter module url: ");
-
 if (
-  url.includes(".php?") &&
-  !url.includes("kd_mk") &&
+  !url.includes(".php?") ||
+  !url.includes("kd_mk") ||
   !url.includes("namamk")
 ) {
   console.log(chalk.red("Invalid URL"));
@@ -37,24 +36,34 @@ const getModule = async (url) => {
           const creator = $(this).find("td").first().text();
           const fileName = $(this).find("td").eq(3).text();
           const link = $(this).find("a").attr("href");
-          modul.push({
-            creator,
-            fileName,
-            link,
-          });
+          if (link) {
+            modul.push({
+              creator,
+              fileName,
+              link,
+            });
+          }
         });
         //create download folder if not exist
         if (!fs.existsSync("downloads")) {
           fs.mkdirSync("downloads");
         }
 
-        //create module folder if not exist
         if (!fs.existsSync(`./downloads/${moduleName}`)) {
           fs.mkdirSync(`./downloads/${moduleName}`);
         }
+
         fs.writeFileSync(
-          `./downloads/${moduleName}/link.txt`,
-          url,
+          `./downloads/${moduleName}/info.json`,
+          JSON.stringify(
+            {
+              moduleCount: modul.length,
+              link: url,
+              modules: modul,
+            },
+            null,
+            2
+          ),
           "utf-8",
           (err) => {
             if (err) {
@@ -62,8 +71,15 @@ const getModule = async (url) => {
             }
           }
         );
+
         const domain = url.match(/(https?:\/\/[^/]+)/)[1];
+
         let pendingDownload = modul.length;
+        let successDownload = 0;
+        let failedDownload = 0;
+
+        console.log(`Total ${chalk.yellow(pendingDownload)} files to download`);
+        // await setTimeout(1000);
         modul.forEach((m, index) => {
           const creatorName = m.creator.replace(/^\s+|\s+$/g, "");
 
@@ -89,17 +105,71 @@ const getModule = async (url) => {
                   )
                 );
                 console.log(chalk.green("Downloaded"), m.fileName);
+                successDownload++;
                 pendingDownload--;
                 if (pendingDownload === 0) {
                   console.log(chalk.green("Download completed"));
+                  console.log(
+                    chalk.green(
+                      `Success: ${successDownload}, Failed: ${failedDownload}, Total: ${modul.length}`
+                    )
+                  );
+                  const info = JSON.parse(
+                    fs.readFileSync(
+                      `./downloads/${moduleName}/info.json`,
+                      "utf-8"
+                    )
+                  );
+                  info.successDownload = successDownload;
+                  info.failedDownload = failedDownload;
+                  fs.writeFileSync(
+                    `./downloads/${moduleName}/info.json`,
+                    JSON.stringify(info, null, 2),
+                    "utf-8",
+                    (err) => {
+                      if (err) {
+                        console.log(err.message);
+                      }
+                    }
+                  );
                   process.exit(0);
                 }
               })
               .catch((err) => {
                 console.log(err.message);
+                console.log(
+                  `${chalk.red("Failed")} to download ${
+                    m.fileName
+                  } created by ${m.creator}`
+                );
+                failedDownload++;
                 pendingDownload--;
                 if (pendingDownload === 0) {
                   console.log(chalk.green("Download completed"));
+                  console.log(
+                    chalk.green(
+                      `Success: ${successDownload}, Failed: ${failedDownload}, Total: ${modul.length}`
+                    )
+                  );
+
+                  const info = JSON.parse(
+                    fs.readFileSync(
+                      `./downloads/${moduleName}/info.json`,
+                      "utf-8"
+                    )
+                  );
+                  info.successDownload = successDownload;
+                  info.failedDownload = failedDownload;
+                  fs.writeFileSync(
+                    `./downloads/${moduleName}/info.json`,
+                    JSON.stringify(info, null, 2),
+                    "utf-8",
+                    (err) => {
+                      if (err) {
+                        console.log(err.message);
+                      }
+                    }
+                  );
                   process.exit(0);
                 }
               });
