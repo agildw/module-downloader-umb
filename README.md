@@ -1,6 +1,6 @@
 
 # Mercubuana module downloader
-This project is a tool that allows you to automatically download all available modules from the website modul.mercubuana.ac.id. Simply enter the link to your module and the tool will handle the rest, saving the downloaded modules to your specified directory. This can save you time and effort by eliminating the need to manually download each module individually.
+This project is a tool that allows you to automatically download all available modules from the website `modul.mercubuana.ac.id`. Simply enter the link to your module and the tool will handle the rest, saving the downloaded modules to your specified directory. This can save you time and effort by eliminating the need to manually download each module individually.
 
 
 
