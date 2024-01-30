@@ -9,13 +9,13 @@ This project is a tool that allows you to automatically download all available m
 Clone the project
 
 ```bash
-  git clone https://github.com/agildw/openai-telegrambot.git
+  git clone https://github.com/agildw/module-downloader-umb.git
 ```
 
 Go to the project directory
 
 ```bash
-  cd openai-telegrambot
+  cd module-downloader-umb
 ```
 
 Install dependencies
